@@ -62,7 +62,7 @@ module.exports = (grunt) ->
         tasks: ["coffee"]
         options: interrupt: true
       css:
-        files: ["app/**/*.styl"]
+        files: ["app/**/*.styl", "app/**/**/*.styl"]
         tasks: ["stylus", "concat:css", "clean"]
         options: interrupt: true
       jade:
