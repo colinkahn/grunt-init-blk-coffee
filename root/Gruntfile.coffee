@@ -25,6 +25,7 @@ module.exports = (grunt) ->
         src: [
           "vendor/bower/jquery/jquery.js"
           "vendor/bower/underscore/underscore.js"
+          "vendor/bower/angular/angular.js"
         ]
       css:
         dest: "build/css/app.css"

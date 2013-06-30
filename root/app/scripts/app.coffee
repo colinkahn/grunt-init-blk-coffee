@@ -1,2 +1,6 @@
-VERSION = "0.1.0"
-console.log "Running #{VERSION} of Your App"
+do ->
+  MODULES =
+    APP: []
+
+  for name, requires of MODULES
+    window[name] = angular.module name, requires
