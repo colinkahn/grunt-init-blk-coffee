@@ -1,3 +1,6 @@
+fs     = require "fs"
+path   = require "path"
+
 module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-coffee"
   grunt.loadNpmTasks "grunt-contrib-concat"
@@ -37,6 +40,9 @@ module.exports = (grunt) ->
         files:
           "tmp/import.css": ["app/styles/import.styl"]
     jade:
+      options:
+        data:
+          version: "<%= package.version %>"
       files:
         expand: true
         cwd: "app"
@@ -98,12 +104,36 @@ module.exports = (grunt) ->
 
   # Custom Tasks
 
+  grunt.registerTask "embed:html", "Embeds angular partials into directives", ->
+    fromFile         = "build/js/app.js"
+    writeFile        = "build/js/app.js"
+    templateUrlRegex = /templateUrl: "([^"]+)"/g
+    done             = @async()
+
+    fs.readFile fromFile, "utf8", (err, data) ->
+      throw err if err?
+
+      updatedCode = data
+
+      while match = templateUrlRegex.exec data
+        toReplace    = match[0]
+        filePath     = path.join "build", match[1]
+        compiledHtml = fs.readFileSync filePath, "utf8"
+        compiledHtml = compiledHtml.replace /"/g, "\\\""
+        compiledHtml = compiledHtml.replace /\n/g, ""
+        updatedCode  = updatedCode.replace toReplace, "template: \"#{compiledHtml}\""
+
+      fs.writeFile writeFile, updatedCode, "utf8", (err, data) ->
+        grunt.log.writeln "Embeded html successfully"
+        done()
+
   grunt.registerTask "build", "Build all source code", [
     "coffee"
     "stylus"
     "jade"
     "concat"
     "clean"
+    "embed:html"
   ]
 
   grunt.registerTask "lite", "Build, Watch and Connect", ->
