@@ -1,5 +1,6 @@
-fs     = require "fs"
-path   = require "path"
+fs           = require "fs"
+path         = require "path"
+proxySnippet = require("grunt-connect-proxy/lib/utils").proxyRequest
 
 module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-coffee"
@@ -10,6 +11,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-clean"
   grunt.loadNpmTasks "grunt-contrib-watch"
   grunt.loadNpmTasks "grunt-contrib-connect"
+  grunt.loadNpmTasks "grunt-connect-proxy"
   grunt.loadNpmTasks "grunt-karma"
 
   grunt.initConfig
@@ -54,8 +56,17 @@ module.exports = (grunt) ->
       server:
         options:
           port: 8080
-          base: "build"
           keepalive: true
+          middleware: (connect) ->
+            [
+              proxySnippet
+              connect.static path.resolve("build")
+            ]
+      proxies: [
+        context: "/api"
+        host: "localhost"
+        port: 4040
+      ]
     watch:
       js:
         files: ["app/**/*.coffee"]
@@ -87,7 +98,7 @@ module.exports = (grunt) ->
 
     spawn
       grunt: true
-      args: ["build"]
+      args: ["compile"]
     , ->
       spawn
         grunt: true
@@ -95,7 +106,7 @@ module.exports = (grunt) ->
 
       spawn
         grunt: true
-        args: ["connect"]
+        args: ["configureProxies", "connect"]
         
       if tests
         spawn
@@ -127,13 +138,12 @@ module.exports = (grunt) ->
         grunt.log.writeln "Embeded html successfully"
         done()
 
-  grunt.registerTask "build", "Build all source code", [
+  grunt.registerTask "compile", "Compile all source code", [
     "coffee"
     "stylus"
     "jade"
     "concat"
     "clean"
-    "embed:html"
   ]
 
   grunt.registerTask "lite", "Build, Watch and Connect", ->
