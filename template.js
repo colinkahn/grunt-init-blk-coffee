@@ -23,6 +23,7 @@ exports.template = function(grunt, init, done) {
       "grunt-contrib-clean":    "0.4.x",
       "grunt-contrib-watch":    "0.2.x",
       "grunt-contrib-connect":  "~0.3.0",
+      "grunt-connect-proxy":    "~0.1.5",
       "grunt-karma":            "~0.3.0"
     }
 
